@@ -45,7 +45,12 @@ def index(request):
     if repos:
         before = time.time()
 
-        prf = PrFetcher(general_settings.top_level_url, general_settings.organization, repos)
+        current_user = None
+        if 'login' in request.GET:
+            current_user = request.GET['login']
+
+        prf = PrFetcher(general_settings.top_level_url, general_settings.organization, repos, current_user)
+
         context = {"title" : "%s PR list" % project,
                    "project_list" : prf.get_prs(),
                    "feedback_ok" : settings_projects.FEEDBACK_OK['name'],
