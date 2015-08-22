@@ -13,14 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gm_pr import models, paginablejson, settings
-from celery import group
-from gm_pr.celery import app
 from operator import attrgetter
+import re
+
+from celery import group
 from django.utils import dateparse
+
 from django.utils import timezone
 
-import re
+from gm_pr import settings_projects
+from common import paginablejson, models
+from gm_pr.celery import app
+
 
 def is_color_light(rgb_hex_color_string):
     """ return true if the given html hex color string is a "light" color
@@ -73,23 +77,23 @@ def fetch_data(repo_name, url, org):
 
             date = dateparse.parse_datetime(json_pr['updated_at'])
             is_old = False
-            if (now - date).days >= settings.OLD_PERIOD:
-                if not labels and None in settings.OLD_LABELS:
+            if (now - date).days >= settings_projects.OLD_PERIOD:
+                if not labels and None in settings_projects.OLD_LABELS:
                     is_old = True
                 else:
                     for lbl in labels:
-                        if lbl['name'] in settings.OLD_LABELS:
+                        if lbl['name'] in settings_projects.OLD_LABELS:
                             is_old = True
                             break
 
             # look for tags only in main conversation and not in "file changed"
             for jcomment in conversation_json:
                 body = jcomment['body']
-                if re.search(settings.FEEDBACK_OK['keyword'], body):
+                if re.search(settings_projects.FEEDBACK_OK['keyword'], body):
                     feedback_ok += 1
-                if re.search(settings.FEEDBACK_WEAK['keyword'], body):
+                if re.search(settings_projects.FEEDBACK_WEAK['keyword'], body):
                     feedback_weak += 1
-                if re.search(settings.FEEDBACK_KO['keyword'], body):
+                if re.search(settings_projects.FEEDBACK_KO['keyword'], body):
                     feedback_ko += 1
             if milestone:
                 milestone = milestone['title']
@@ -138,6 +142,6 @@ class PrFetcher:
         pr_list is a list of models.Pr
         """
         res = group(fetch_data.s(repo_name, self.__url, self.__org)
-                    for repo_name in self.__repos)()
+            for repo_name in self.__repos)()
         data = res.get()
         return [repo for repo in data if repo != None]

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 class Pr:
     """ Simple class wrapper for pr properties
     """
@@ -32,3 +33,5 @@ class Pr:
         self.milestone = milestone
         self.labels = labels
         self.is_old = is_old
+
+

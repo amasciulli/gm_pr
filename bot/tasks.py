@@ -17,9 +17,11 @@ from __future__ import absolute_import
 
 import json
 import urllib.request
-from gm_pr.prfetcher import PrFetcher
+
+from common.prfetcher import PrFetcher
 from gm_pr.celery import app
-from gm_pr import settings
+from gm_pr import settings_projects
+
 
 @app.task
 def slack(url, org, weburl, repos, slackurl, channel):
@@ -48,13 +50,11 @@ def slack(url, org, weburl, repos, slackurl, channel):
                     txt += " *%s* -" % (label['name'])
                 txt += " %s review:%d %s:%d %s:%d" % \
                        (pr.user, pr.nbreview,
-                        settings.FEEDBACK_OK['keyword'], pr.feedback_ok,
-                        settings.FEEDBACK_WEAK['keyword'], pr.feedback_weak)
+                        settings_projects.FEEDBACK_OK['keyword'], pr.feedback_ok,
+                        settings_projects.FEEDBACK_WEAK['keyword'], pr.feedback_weak)
                 if pr.feedback_ko > 0:
-                    txt += " %s" % (settings.FEEDBACK_KO['keyword'])
+                    txt += " %s" % (settings_projects.FEEDBACK_KO['keyword'])
                 txt += "\n"
-
-
 
     payload = {"channel": channel,
                "username": "genypr",
