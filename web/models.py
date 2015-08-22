@@ -52,7 +52,7 @@ class GeneralSettings(models.Model):
     old_period = models.IntegerField(default=4, null=True, blank=True)
     slack_settings = models.ForeignKey(SlackSettings, null=True, blank=True)
     label_github = models.ManyToManyField(LabelGithub, default=None, blank=True)
-    last_activity_filter = MultiSelectField(choices=ACTIVITY_TYPES, max_choices=3)
+    last_activity_filter = MultiSelectField(choices=ACTIVITY_TYPES,  max_choices=3, blank=False, default="comments")
 
 
     def __str__(self):
