@@ -13,3 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+
+from urllib import request
+from web.models import GeneralSettings
+
+class GithubTokenHttpsHandler(request.HTTPSHandler):
+    def __init__(self, token, **kwargs):
+        super().__init__(**kwargs)
+        self.__token = token
+
+    def https_request(self, req):
+        super().https_request(req)
+        req.add_header('Authorization', 'token %s' % self.__token)
+
+        return req
+
+
+general_settings = GeneralSettings.objects.first()
+handler = GithubTokenHttpsHandler(general_settings.github_oauth_token)
+opener = request.build_opener(handler)
+
+request.install_opener(opener)
