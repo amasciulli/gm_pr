@@ -29,7 +29,7 @@ class GithubTokenHttpsHandler(request.HTTPSHandler):
 
         return req
 
-
+#FIXME initital migration
 general_settings = GeneralSettings.objects.first()
 handler = GithubTokenHttpsHandler(general_settings.github_oauth_token)
 opener = request.build_opener(handler)

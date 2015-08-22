@@ -50,6 +50,8 @@ ProxyPassReverse /gm_pr http://localhost:8000
  * gm_pr/settings.py: this is the standard Django configuration file
  * gm_pr/settings_projects.py: contains everything related to your projects
 
+create superuser
+
 ### Django configuration
 
 Refer to the django project if you want to change the configuration.

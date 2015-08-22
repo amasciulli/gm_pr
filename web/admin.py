@@ -15,7 +15,8 @@
 
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
-from web.models import GeneralSettings, SlackSettings, ProjectRepository, LabelGithub
+from web.models import GeneralSettings, SlackSettings, ProjectRepository, \
+    LabelGithub, FeedbackGithub
 
 
 @admin.register(GeneralSettings)
@@ -35,4 +36,8 @@ class ProjectRepositoryAdmin(ModelAdmin):
 
 @admin.register(LabelGithub)
 class LabelGithubAdmin(ModelAdmin):
+    pass
+
+@admin.register(FeedbackGithub)
+class FeedbackGithubAdmin(ModelAdmin):
     pass

@@ -15,7 +15,6 @@
 
 from django.http import HttpResponse
 
-from gm_pr import settings_projects
 from common import proj_repo
 from bot import tasks, slackauth
 from web.models import GeneralSettings

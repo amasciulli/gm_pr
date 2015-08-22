@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 from django.db import models
 from gm_pr import settings
 
@@ -24,15 +25,6 @@ class SlackSettings(models.Model):
     slack_url = models.CharField(max_length=256)
 
 
-class LabelGithub(models.Model):
-    """ List of label from github
-    """
-
-    name = models.CharField(max_length=256)
-
-    def __str__(self):
-        return self.name
-
 
 class GeneralSettings(models.Model):
     """ General settings like url and stuuf like that
@@ -44,8 +36,8 @@ class GeneralSettings(models.Model):
     top_level_url = models.CharField(max_length=256, default=settings.TOP_LEVEL_URL)
     old_period = models.IntegerField(default=4, null=True, blank=True)
     slack_settings = models.ForeignKey(SlackSettings, null=True, blank=True)
-    label_github = models.ManyToManyField(LabelGithub, default=None, blank=True)
-
+    #label_github = models.ManyToManyField(LabelGithub, default=None, blank=True)
+    #feedback_github = models.ManyToManyField(FeedbackGithub, default=None, blank=True)
 
     def __str__(self):
         return "%s -- %s" % (self.organization, self.weburl)
@@ -64,3 +56,26 @@ class ProjectRepository(models.Model):
 
     def __str__(self):
         return self.name
+
+class LabelGithub(models.Model):
+    """ List of label from github
+    """
+    general_settings = models.ManyToManyField(GeneralSettings, blank=True)
+    name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+class FeedbackGithub(models.Model):
+    """ List Feedback symbol
+    """
+
+    general_settings = models.ManyToManyField(GeneralSettings, blank=True)
+    keyword = models.CharField(max_length=256)
+    name = models.CharField(max_length=256)
+    # one of "ok" "weak" "ko"
+    type =  models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.keyword
+

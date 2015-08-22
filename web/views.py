@@ -22,10 +22,9 @@ from django.shortcuts import render
 
 from django.http import HttpResponse
 
-from gm_pr import settings_projects
 from common import proj_repo
 from common.prfetcher import PrFetcher
-from web.models import ProjectRepository, GeneralSettings
+from web.models import ProjectRepository, GeneralSettings, FeedbackGithub, LabelGithub
 
 
 def index(request):
@@ -44,13 +43,22 @@ def index(request):
 
     if repos:
         before = time.time()
+        feedback_ok = FeedbackGithub.objects.filter(general_settings=general_settings, type="ok").first()
+        feedback_weak = FeedbackGithub.objects.filter(general_settings=general_settings, type="weak").first()
+        feedback_ko = FeedbackGithub.objects.filter(general_settings=general_settings, type="ko").first()
+        label_github = LabelGithub.objects.filter(general_settings=general_settings)
 
-        prf = PrFetcher(general_settings.top_level_url, general_settings.organization, repos)
+        prf = PrFetcher(general_settings.top_level_url, general_settings.organization,
+                        #general_settings.old_period, label_github,
+                        #feedback_ok.keyword,
+                        #feedback_weak.keyword,
+                        #feedback_ko.keyword,
+                        repos)
         context = {"title" : "%s PR list" % project,
                    "projects" : prf.get_prs(),
-                   "feedback_ok" : settings.FEEDBACK_OK['name'],
-                   "feedback_weak" : settings.FEEDBACK_WEAK['name'],
-                   "feedback_ko" : settings.FEEDBACK_KO['name']}
+                   "feedback_ok" : feedback_ok.name,
+                   "feedback_weak" : feedback_weak.name,
+                   "feedback_ko" : feedback_ko.name}
 
         after = time.time()
         print(after - before)

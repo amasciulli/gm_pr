@@ -13,15 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gm_pr import models, paginablejson, settings
 from celery import group, subtask
-from gm_pr.celery import app
 from operator import attrgetter
 import re
 
 from django.utils import dateparse
 from django.utils import timezone
 
+from common import paginablejson, models
+from gm_pr.celery import app
+from web.models import ProjectRepository, GeneralSettings, FeedbackGithub, LabelGithub
 
 def is_color_light(rgb_hex_color_string):
     """ return true if the given html hex color string is a "light" color
@@ -43,7 +44,12 @@ def parse_githubdata(data):
           json: json} }
     return models.Pr
     """
-
+    general_settings = GeneralSettings.objects.first()
+    old_period = general_settings.old_period
+    feedback_ok_sym = FeedbackGithub.objects.filter(general_settings=general_settings, type="ok").first().name
+    feedback_weak_sym = FeedbackGithub.objects.filter(general_settings=general_settings, type="weak").first().name
+    feedback_ko_sym = FeedbackGithub.objects.filter(general_settings=general_settings, type="ko").first().name
+    old_labels = LabelGithub.objects.filter(general_settings=general_settings).all()
     feedback_ok = 0
     feedback_weak = 0
     feedback_ko = 0
@@ -59,12 +65,12 @@ def parse_githubdata(data):
 
     date = dateparse.parse_datetime(data['json']['updated_at'])
     is_old = False
-    if (now - date).days >= settings.OLD_PERIOD:
-        if not labels and None in settings.OLD_LABELS:
+    if (now - date).days >= old_period:
+        if not labels and None in old_labels:
             is_old = True
         else:
             for lbl in labels:
-                if lbl['name'] in settings.OLD_LABELS:
+                if lbl['name'] in old_labels:
                     is_old = True
                     break
 
@@ -75,11 +81,11 @@ def parse_githubdata(data):
     # look for tags only in main conversation and not in "file changed"
     for jcomment in data['comment']:
         body = jcomment['body']
-        if re.search(settings.FEEDBACK_OK['keyword'], body):
+        if re.search(feedback_ok_sym, body):
             feedback_ok += 1
-        if re.search(settings.FEEDBACK_WEAK['keyword'], body):
+        if re.search(feedback_weak_sym, body):
             feedback_weak += 1
-        if re.search(settings.FEEDBACK_KO['keyword'], body):
+        if re.search(feedback_ko_sym, body):
             feedback_ko += 1
     if milestone:
         milestone = milestone['title']

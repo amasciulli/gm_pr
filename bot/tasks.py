@@ -20,8 +20,10 @@ import urllib.request
 
 from common.prfetcher import PrFetcher
 from gm_pr.celery import app
-from gm_pr import settings_projects
 
+#FIXME: broken, need to use db now, hack to let it compile
+#from gm_pr import settings_projects
+settings_projects = []
 
 #@app.task
 def slack(url, org, weburl, repos, slackurl, channel):
