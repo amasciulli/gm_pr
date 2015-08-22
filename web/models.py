@@ -44,7 +44,7 @@ class GeneralSettings(models.Model):
     top_level_url = models.CharField(max_length=256, default=settings.TOP_LEVEL_URL)
     old_period = models.IntegerField(default=4, null=True, blank=True)
     slack_settings = models.ForeignKey(SlackSettings, null=True, blank=True)
-    label_github = models.ManyToManyField(LabelGithub, null=True, default=None, blank=True)
+    label_github = models.ManyToManyField(LabelGithub, default=None, blank=True)
 
 
     def __str__(self):
@@ -55,7 +55,7 @@ class ProjectRepository(models.Model):
     """ Project repository
     """
 
-    general_settings = models.ManyToManyField(GeneralSettings, null=True, blank=True)
+    general_settings = models.ManyToManyField(GeneralSettings, blank=True)
     parent = models.ForeignKey('self', null=True, default=None, blank=True)
     name = models.CharField(max_length=256)
 
