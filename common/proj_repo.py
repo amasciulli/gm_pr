@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from gm_pr import settings
+from gm_pr import settings_projects
+from web.models import ProjectRepository
+
 
 def proj_repo(request):
     """ Retrieve project list from a Slack request or web request.
@@ -23,6 +25,7 @@ def proj_repo(request):
     """
     repos = None
     project = None
+    project_list = ProjectRepository.objects.filter(parent=None)
     if request.GET != None and \
        'channel_name' in request.GET or 'project' in request.GET:
         if 'channel_name' in request.GET:
@@ -30,6 +33,10 @@ def proj_repo(request):
         else:
             project = request.GET['project']
 
-        if project in settings.PROJECTS_REPOS:
-            repos = settings.PROJECTS_REPOS[project]
+        print(project_list)
+        if project in project_list:
+            repos_obj = ProjectRepository.objects.filter(parent__name=project)
+            repos = []
+            for obj in repos_obj:
+                repos.append(obj.name)
     return project, repos

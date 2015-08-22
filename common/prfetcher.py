@@ -17,10 +17,11 @@ from gm_pr import models, paginablejson, settings
 from celery import group, subtask
 from gm_pr.celery import app
 from operator import attrgetter
+import re
+
 from django.utils import dateparse
 from django.utils import timezone
 
-import re
 
 def is_color_light(rgb_hex_color_string):
     """ return true if the given html hex color string is a "light" color
@@ -135,7 +136,6 @@ def dmap(it, callback):
     callback = subtask(callback)
     return group(callback.clone((arg,)) for arg in it)()
 
-
 @app.task
 def get_tagdata_from_url(tagurl):
     if tagurl['tag'] == 'json':
@@ -169,7 +169,6 @@ class PrFetcher:
         return a list of { 'name' : repo_name, 'pr_list' : pr_list }
         pr_list is a list of models.Pr
         """
-
         # { 41343736 : { 'repo': genymotion-libauth,
         #                detail: paginable,
         #                label: paginable,
