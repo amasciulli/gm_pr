@@ -20,7 +20,7 @@
 ##
 
 # generate a token here: https://github.com/settings/tokens
-GITHUB_OAUTHTOKEN = "4785801889f794408ce6e7179f76625afee370b3"
+#GITHUB_OAUTHTOKEN = "xxx"
 # name of your github organisation
 #ORG = "Genymobile"
 # do not change this :-)

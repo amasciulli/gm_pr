@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-# This will make sure the app is always imported when
-# Django starts so that shared_task will use this app.
-from .celery import app as celery_app
+FROM debian:jessie
+RUN apt-get update
+RUN apt-get install -y python3-django python3-django-celery celeryd python3-sqlalchemy supervisor apache2 libapache2-mod-wsgi-py3
+ADD gm_pr.conf /etc/apache2/sites-available/gm_pr.conf
+RUN a2ensite gm_pr
+EXPOSE 80
+WORKDIR /var/www/gm_pr
+CMD chown -R www-data:www-data . && supervisord -c deploy/supervisord.conf
