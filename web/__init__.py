@@ -20,27 +20,19 @@ from web.models import GeneralSettings
 from django.db.utils import OperationalError
 
 class GithubTokenHttpsHandler(request.HTTPSHandler):
-    def __init__(self, token, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.__token = token
 
     def https_request(self, req):
         super().https_request(req)
-        req.add_header('Authorization', 'token %s' % self.__token)
-
+        general_settings = GeneralSettings.objects.first()
+        # if general_settings is None, this means we have migrated the DB
+        # but have not yet gone into the admin page to enter data
+        if general_settings is not None:
+            req.add_header('Authorization', 'token %s' % general_settings.github_oauth_token)
         return req
 
-try:
-    general_settings = GeneralSettings.objects.first()
-    # if general_settings is None, this means we have migrated the DB
-    # but have not yet gone into the admin page to enter data
-    if general_settings is not None:
-        handler = GithubTokenHttpsHandler(general_settings.github_oauth_token)
-        opener = request.build_opener(handler)
-        request.install_opener(opener)
-except OperationalError:
-    # We get here when migrating the DB: the GeneralSettings object doesn't exist
-    # at all, so we can't get the OAuth token for the requests
-    # (We don't need this during migration anyway)
-    pass
+handler = GithubTokenHttpsHandler()
+opener = request.build_opener(handler)
+request.install_opener(opener)
 
