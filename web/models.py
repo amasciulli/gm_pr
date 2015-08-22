@@ -14,6 +14,7 @@
 # limitations under the License.
 from django.db import models
 from gm_pr import settings
+from multiselectfield import MultiSelectField
 
 
 class SlackSettings(models.Model):
@@ -34,6 +35,12 @@ class LabelGithub(models.Model):
         return self.name
 
 
+# "comments"
+# "events" (slows page loading)
+# "commits" (slows page loading)
+ACTIVITY_TYPES = (("comments", "Comments"),
+                  ("commits", "Commits (slows page loading)"),
+                  ("events", "Events (slows page loading)"))
 class GeneralSettings(models.Model):
     """ General settings like url and stuuf like that
     """
@@ -45,6 +52,7 @@ class GeneralSettings(models.Model):
     old_period = models.IntegerField(default=4, null=True, blank=True)
     slack_settings = models.ForeignKey(SlackSettings, null=True, blank=True)
     label_github = models.ManyToManyField(LabelGithub, default=None, blank=True)
+    last_activity_filter = MultiSelectField(choices=ACTIVITY_TYPES, max_choices=3)
 
 
     def __str__(self):

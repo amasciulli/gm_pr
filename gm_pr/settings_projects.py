@@ -26,6 +26,7 @@ GITHUB_OAUTHTOKEN = "4785801889f794408ce6e7179f76625afee370b3"
 # do not change this :-)
 #TOP_LEVEL_URL = "https://api.github.com"
 
+
 ##
 # Slack configuration (ignore this section if you do not use slack)
 ##

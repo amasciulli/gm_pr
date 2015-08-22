@@ -21,9 +21,10 @@ from django.utils import dateparse
 
 from django.utils import timezone
 
-from gm_pr import settings_projects
+from gm_pr import settings_projects, practivity
 from common import paginablejson, models
 from gm_pr.celery import app
+from web import GeneralSettings
 
 
 def is_color_light(rgb_hex_color_string):
@@ -39,6 +40,7 @@ def is_color_light(rgb_hex_color_string):
 
 @app.task
 def fetch_data(repo_name, url, org, current_user):
+    general_settings = GeneralSettings.objects.first()
     """ Celery task, call github api
     repo_name -- github repo name
     url -- base url for this repo
@@ -59,13 +61,19 @@ def fetch_data(repo_name, url, org, current_user):
     for json_pr in json_prlist:
         if json_pr['state'] == 'open':
             conversation_json = paginablejson.PaginableJson(json_pr['comments_url'])
+            issue_url = json_pr['issue_url']
+            last_event = None
+            last_commit = None
+            if "events" in general_settings.last_activity_filter: last_event = practivity.get_latest_event(issue_url)
+            if "commits" in general_settings.last_activity_filter: last_commit = practivity.get_latest_commit("%s/%s" %(url, json_pr['number']))
+            last_activity = practivity.get_latest_activity(last_event, last_commit)
+
             detail_json = paginablejson.PaginableJson(json_pr['url'])
             feedback_ok = 0
             feedback_weak = 0
             feedback_ko = 0
             milestone = json_pr['milestone']
-            label_json = paginablejson.PaginableJson("%s/labels" % \
-                                                     json_pr['issue_url'])
+            label_json = paginablejson.PaginableJson("%s/labels" % issue_url)
             labels = list()
             if label_json:
                 for lbl in label_json:
@@ -91,8 +99,14 @@ def fetch_data(repo_name, url, org, current_user):
                 my_open_comment_count = get_open_comment_count(json_pr['review_comments_url'], current_user)
             else:
                 my_open_comment_count = 0
+            # look for tags and activity only in main conversation and not in "file changed"
             for jcomment in conversation_json:
                 body = jcomment['body']
+                if "comments" in general_settings.last_activity_filter:
+                    comment_activity = practivity.PrActivity(dateparse.parse_datetime(jcomment['updated_at']),
+                                                         jcomment['user']['login'],
+                                                         "commented")
+                    last_activity = practivity.get_latest_activity(last_activity, comment_activity)
                 if re.search(settings_projects.FEEDBACK_OK['keyword'], body):
                     feedback_ok += 1
                 if re.search(settings_projects.FEEDBACK_WEAK['keyword'], body):
@@ -106,6 +120,7 @@ def fetch_data(repo_name, url, org, current_user):
                            title=json_pr['title'],
                            updated_at=date,
                            user=json_pr['user']['login'],
+                           last_activity=last_activity,
                            my_open_comment_count=my_open_comment_count,
                            repo=json_pr['base']['repo']['full_name'],
                            nbreview=int(detail_json['comments']) +
