@@ -16,20 +16,6 @@ from django.db import models
 from gm_pr import settings
 
 
-class ProjectRepository(models.Model):
-    """ Project repository
-    """
-
-    parent = models.ForeignKey('self', null=True, default=None, blank=True)
-    name = models.CharField(max_length=256)
-
-    def __eq__(self, other):
-        return self.name == other
-
-    def __str__(self):
-        return self.name
-
-
 class SlackSettings(models.Model):
     """ Slack settings
     """
@@ -58,9 +44,23 @@ class GeneralSettings(models.Model):
     top_level_url = models.CharField(max_length=256, default=settings.TOP_LEVEL_URL)
     old_period = models.IntegerField(default=4, null=True, blank=True)
     slack_settings = models.ForeignKey(SlackSettings, null=True, blank=True)
-    project_repository = models.ForeignKey(ProjectRepository, null=True, blank=True)
     label_github = models.ManyToManyField(LabelGithub, null=True, default=None, blank=True)
 
 
-def __str__(self):
+    def __str__(self):
         return "%s -- %s" % (self.organization, self.weburl)
+
+
+class ProjectRepository(models.Model):
+    """ Project repository
+    """
+
+    general_settings = models.ManyToManyField(GeneralSettings, null=True, blank=True)
+    parent = models.ForeignKey('self', null=True, default=None, blank=True)
+    name = models.CharField(max_length=256)
+
+    def __eq__(self, other):
+        return self.name == other
+
+    def __str__(self):
+        return self.name
