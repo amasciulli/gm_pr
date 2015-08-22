@@ -20,22 +20,22 @@
 ##
 
 # generate a token here: https://github.com/settings/tokens
-GITHUB_OAUTHTOKEN = "xxxx"
+GITHUB_OAUTHTOKEN = "4785801889f794408ce6e7179f76625afee370b3"
 # name of your github organisation
-ORG = "Genymobile"
+#ORG = "Genymobile"
 # do not change this :-)
-TOP_LEVEL_URL = "https://api.github.com"
+#TOP_LEVEL_URL = "https://api.github.com"
 
 ##
 # Slack configuration (ignore this section if you do not use slack)
 ##
 
 # link to the web version
-WEB_URL = "http://www.example.org/gm_pr/"
+#WEB_URL = "http://www.example.org/gm_pr/"
 # slack authentification token
-SLACK_TOKEN = "xxx"
+#SLACK_TOKEN = "xxx"
 # incoming-webhook url
-SLACK_URL = "https://hooks.slack.com/services/xxxx"
+#SLACK_URL = "https://hooks.slack.com/services/xxxx"
 
 ##
 # Project configuration
@@ -62,11 +62,3 @@ FEEDBACK_KO = {"keyword": ":x:", "name" :"&#10007;"}
 # repository names.
 # Note for slack user: The name of the project (eg: opensource) must match the
 # name of the slack channel
-PROJECTS_REPOS = \
-    {'opensource' : ('genymotion-binocle',
-                      'FridgeCheckup',
-                      'gm_pr',
-                    ),
-     'test' : ('test',
-                )
-    }

@@ -16,29 +16,41 @@
 # Create your views here.
 
 
-from django.shortcuts import render
-from django.http import HttpResponse
-from gm_pr import settings, proj_repo
-from gm_pr.prfetcher import PrFetcher
 import time
 
+from django.shortcuts import render
+
+from django.http import HttpResponse
+
+from gm_pr import settings_projects
+from common import proj_repo
+from common.prfetcher import PrFetcher
+from web.models import ProjectRepository, GeneralSettings
+
+
 def index(request):
+    general_settings = GeneralSettings.objects.first()
+
+    if not general_settings:
+        return HttpResponse("No configurations found\n", status=404)
+
     if not request.GET:
+        project_list = ProjectRepository.objects.filter(parent=None, general_settings=general_settings)
         context = {'title': "Project list",
-                   'project_list' : settings.PROJECTS_REPOS.keys()}
+                   'project_list': project_list}
         return render(request, 'index.html', context)
 
     project, repos = proj_repo.proj_repo(request)
 
-    if repos != None:
+    if repos:
         before = time.time()
 
-        prf = PrFetcher(settings.TOP_LEVEL_URL, settings.ORG, repos)
+        prf = PrFetcher(general_settings.top_level_url, general_settings.organization, repos)
         context = {"title" : "%s PR list" % project,
                    "project_list" : prf.get_prs(),
-                   "feedback_ok" : settings.FEEDBACK_OK['name'],
-                   "feedback_weak" : settings.FEEDBACK_WEAK['name'],
-                   "feedback_ko" : settings.FEEDBACK_KO['name']}
+                   "feedback_ok" : settings_projects.FEEDBACK_OK['name'],
+                   "feedback_weak" : settings_projects.FEEDBACK_WEAK['name'],
+                   "feedback_ko" : settings_projects.FEEDBACK_KO['name']}
 
         after = time.time()
         print(after - before)
