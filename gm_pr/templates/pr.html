@@ -19,10 +19,10 @@ limitations under the License.
 {% load humanize %}
 {% block content %}
 
-{% for project in project_list %}
+{% for name, prlist in projects.items %}
 <div class="project-box">
     <div class="project">
-        <div class="project-name">{{project.name}}</div>
+        <div class="project-name">{{name}}</div>
         <table class="project">
             <tr>
                 <th>Last update</th>
@@ -35,7 +35,7 @@ limitations under the License.
                 <th class="feedback-name">{{feedback_weak|safe}}</th>
                 <th class="feedback-name">{{feedback_ko|safe}}</th>
             </tr>
-        {% for pr in project.pr_list %}
+        {% for pr in prlist %}
             <tr class="pr">
                 {% if pr.is_old %}
                     <td class="last-update highlight">{{pr.updated_at|naturaltime}}</td>
